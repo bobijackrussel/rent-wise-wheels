@@ -6,19 +6,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Calendar, MapPin, Car, AlertCircle } from "lucide-react";
+import { Calendar, MapPin, Car, User } from "lucide-react";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Reservation = {
   id: string;
@@ -29,47 +19,56 @@ type Reservation = {
   vehicles: {
     make: string;
     model: string;
-    image_url?: string;
+    id: string;
   };
   locations: {
     name: string;
     city: string;
   };
+  user_id: string;
+  vehicle_id: string;
 };
 
-const MyReservations = () => {
+const ReservationManagement = () => {
   const navigate = useNavigate();
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAuthAndFetch();
+    checkAdminAndFetch();
   }, []);
 
-  const checkAuthAndFetch = async () => {
+  const checkAdminAndFetch = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    
     if (!session) {
       navigate("/auth");
       return;
     }
 
-    fetchReservations(session.user.id);
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id);
+
+    if (!roles?.some((r) => r.role === "admin")) {
+      navigate("/dashboard");
+      return;
+    }
+
+    fetchReservations();
   };
 
-  const fetchReservations = async (userId: string) => {
+  const fetchReservations = async () => {
     const { data, error } = await supabase
       .from("reservations")
       .select(`
         *,
-        vehicles(make, model, image_url),
+        vehicles(make, model, id),
         locations(name, city)
       `)
-      .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("Error fetching reservations:", error);
       toast.error("Failed to load reservations");
     } else {
       setReservations(data || []);
@@ -77,20 +76,27 @@ const MyReservations = () => {
     setLoading(false);
   };
 
-  const handleCancelReservation = async (id: string) => {
+  const updateReservationStatus = async (id: string, status: string, vehicleId?: string) => {
     const { error } = await supabase
       .from("reservations")
-      .update({ status: "cancelled" })
+      .update({ status })
       .eq("id", id);
 
     if (error) {
-      toast.error("Failed to cancel reservation");
-    } else {
-      toast.success("Reservation cancelled successfully");
-      setReservations(reservations.map(r => 
-        r.id === id ? { ...r, status: "cancelled" } : r
-      ));
+      toast.error("Failed to update reservation");
+      return;
     }
+
+    // If marking as completed, make vehicle available again
+    if (status === "completed" && vehicleId) {
+      await supabase
+        .from("vehicles")
+        .update({ is_available: true })
+        .eq("id", vehicleId);
+    }
+
+    toast.success("Reservation updated successfully");
+    fetchReservations();
   };
 
   const getStatusBadge = (status: string) => {
@@ -111,8 +117,8 @@ const MyReservations = () => {
       <Navbar />
       <div className="container py-8">
         <div className="mb-8">
-          <h1 className="mb-2 text-4xl font-bold">My Reservations</h1>
-          <p className="text-muted-foreground">View and manage your vehicle bookings</p>
+          <h1 className="text-4xl font-bold">Reservation Management</h1>
+          <p className="text-muted-foreground">View and manage all customer reservations</p>
         </div>
 
         {loading ? (
@@ -121,17 +127,6 @@ const MyReservations = () => {
               <div key={i} className="h-48 animate-pulse rounded-lg bg-muted" />
             ))}
           </div>
-        ) : reservations.length === 0 ? (
-          <Card>
-            <CardContent className="flex min-h-[400px] flex-col items-center justify-center p-8 text-center">
-              <AlertCircle className="mb-4 h-12 w-12 text-muted-foreground" />
-              <h2 className="mb-2 text-2xl font-semibold">No reservations yet</h2>
-              <p className="mb-6 text-muted-foreground">
-                Start your journey by browsing our available vehicles
-              </p>
-              <Button onClick={() => navigate("/vehicles")}>Browse Vehicles</Button>
-            </CardContent>
-          </Card>
         ) : (
           <div className="space-y-4">
             {reservations.map((reservation) => (
@@ -181,45 +176,22 @@ const MyReservations = () => {
                     </div>
                   </div>
 
-                  {reservation.status === "active" && (
-                    <div className="mt-4 flex gap-2">
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm">
-                            Cancel Reservation
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Cancel Reservation</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to cancel this reservation? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Keep Reservation</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleCancelReservation(reservation.id)}>
-                              Cancel Reservation
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => navigate(`/violations?reservation=${reservation.id}`)}
-                      >
-                        Report Violation
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => navigate(`/feedback?reservation=${reservation.id}`)}
-                      >
-                        Leave Feedback
-                      </Button>
-                    </div>
-                  )}
+                  <div className="mt-4">
+                    <label className="text-sm text-muted-foreground">Update Status:</label>
+                    <Select
+                      value={reservation.status}
+                      onValueChange={(value) => updateReservationStatus(reservation.id, value, reservation.vehicle_id)}
+                    >
+                      <SelectTrigger className="mt-1 w-[200px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -230,4 +202,4 @@ const MyReservations = () => {
   );
 };
 
-export default MyReservations;
+export default ReservationManagement;

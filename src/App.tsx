@@ -11,6 +11,12 @@ import VehicleDetail from "./pages/VehicleDetail";
 import Dashboard from "./pages/Dashboard";
 import MyReservations from "./pages/MyReservations";
 import Settings from "./pages/Settings";
+import ReportViolation from "./pages/ReportViolation";
+import LeaveFeedback from "./pages/LeaveFeedback";
+import VehicleManagement from "./pages/admin/VehicleManagement";
+import ReservationManagement from "./pages/admin/ReservationManagement";
+import LocationManagement from "./pages/admin/LocationManagement";
+import DiscountManagement from "./pages/admin/DiscountManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +36,12 @@ const App = () => (
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/my-reservations" element={<MyReservations />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/violations" element={<ReportViolation />} />
+            <Route path="/feedback" element={<LeaveFeedback />} />
+            <Route path="/admin/vehicles" element={<VehicleManagement />} />
+            <Route path="/admin/reservations" element={<ReservationManagement />} />
+            <Route path="/admin/locations" element={<LocationManagement />} />
+            <Route path="/admin/discounts" element={<DiscountManagement />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
