@@ -127,10 +127,9 @@ const LeaveFeedback = () => {
                       onValueChange={(value) => setFormData({ ...formData, reservation_id: value })}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a reservation" />
+                        <SelectValue placeholder="Select a reservation (optional)" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">General Feedback</SelectItem>
                         {reservations.map((reservation) => (
                           <SelectItem key={reservation.id} value={reservation.id}>
                             {reservation.vehicles.make} {reservation.vehicles.model} - #{reservation.id.slice(0, 8)}
