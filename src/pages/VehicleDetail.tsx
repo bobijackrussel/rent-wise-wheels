@@ -106,6 +106,27 @@ const VehicleDetail = () => {
 
     setBookingLoading(true);
 
+    // Check for overlapping reservations
+    const { data: existingReservations, error: checkError } = await supabase
+      .from("reservations")
+      .select("*")
+      .eq("vehicle_id", vehicle.id)
+      .neq("status", "cancelled")
+      .or(`and(start_date.lte.${endDate.toISOString()},end_date.gte.${startDate.toISOString()})`);
+
+    if (checkError) {
+      toast.error("Failed to check availability");
+      console.error(checkError);
+      setBookingLoading(false);
+      return;
+    }
+
+    if (existingReservations && existingReservations.length > 0) {
+      toast.error("This vehicle is already booked for the selected dates. Please choose different dates.");
+      setBookingLoading(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("reservations")
       .insert({
