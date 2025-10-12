@@ -1,13 +1,11 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Navbar } from "@/components/Navbar";
 import { Car, Shield, Clock, MapPin } from "lucide-react";
 import heroImage from "@/assets/hero-car.jpg";
 
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       
       {/* Hero Section */}
       <section className="relative h-[600px] overflow-hidden">

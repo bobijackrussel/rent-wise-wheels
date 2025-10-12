@@ -4,6 +4,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+import { Navbar } from "@/components/Navbar";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Vehicles from "./pages/Vehicles";
@@ -28,23 +31,33 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/vehicles" element={<Vehicles />} />
-            <Route path="/vehicles/:id" element={<VehicleDetail />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/my-reservations" element={<MyReservations />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/violations" element={<ReportViolation />} />
-            <Route path="/feedback" element={<LeaveFeedback />} />
-            <Route path="/admin/vehicles" element={<VehicleManagement />} />
-            <Route path="/admin/reservations" element={<ReservationManagement />} />
-            <Route path="/admin/locations" element={<LocationManagement />} />
-            <Route path="/admin/discounts" element={<DiscountManagement />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <SidebarProvider>
+            <div className="flex min-h-screen w-full">
+              <AppSidebar />
+              <div className="flex-1 flex flex-col">
+                <Navbar />
+                <main className="flex-1">
+                  <Routes>
+                    <Route path="/" element={<Index />} />
+                    <Route path="/auth" element={<Auth />} />
+                    <Route path="/vehicles" element={<Vehicles />} />
+                    <Route path="/vehicles/:id" element={<VehicleDetail />} />
+                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/my-reservations" element={<MyReservations />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/violations" element={<ReportViolation />} />
+                    <Route path="/feedback" element={<LeaveFeedback />} />
+                    <Route path="/admin/vehicles" element={<VehicleManagement />} />
+                    <Route path="/admin/reservations" element={<ReservationManagement />} />
+                    <Route path="/admin/locations" element={<LocationManagement />} />
+                    <Route path="/admin/discounts" element={<DiscountManagement />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </main>
+              </div>
+            </div>
+          </SidebarProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
