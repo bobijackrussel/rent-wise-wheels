@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { VehicleCard } from "@/components/VehicleCard";
-import { Navbar } from "@/components/Navbar";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
@@ -139,9 +138,7 @@ const Vehicles = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container py-8">
+    <div className="container py-8">
         <div className="mb-8">
           <h1 className="mb-2 text-4xl font-bold">Browse Vehicles</h1>
           <p className="text-muted-foreground">Find the perfect car for your journey</p>
@@ -193,7 +190,6 @@ const Vehicles = () => {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 };

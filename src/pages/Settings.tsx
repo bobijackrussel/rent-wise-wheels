@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -67,9 +66,7 @@ const Settings = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container max-w-2xl py-8">
+    <div className="container max-w-2xl py-8">
         <h1 className="mb-8 text-4xl font-bold">Settings</h1>
 
         <div className="space-y-6">
@@ -148,7 +145,6 @@ const Settings = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
     </div>
   );
 };

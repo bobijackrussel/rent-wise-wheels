@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -96,9 +95,7 @@ const LeaveFeedback = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container py-8">
+    <div className="container py-8">
         <div className="mx-auto max-w-2xl">
           <div className="mb-8">
             <h1 className="mb-2 text-4xl font-bold">Leave Feedback</h1>
@@ -185,7 +182,6 @@ const LeaveFeedback = () => {
             </Card>
           )}
         </div>
-      </div>
     </div>
   );
 };

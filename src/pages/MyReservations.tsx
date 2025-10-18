@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -107,9 +106,7 @@ const MyReservations = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container py-8">
+    <div className="container py-8">
         <div className="mb-8">
           <h1 className="mb-2 text-4xl font-bold">My Reservations</h1>
           <p className="text-muted-foreground">View and manage your vehicle bookings</p>
@@ -225,7 +222,6 @@ const MyReservations = () => {
             ))}
           </div>
         )}
-      </div>
     </div>
   );
 };

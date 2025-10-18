@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -152,14 +151,11 @@ const VehicleDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container py-8">
+      <div className="container py-8">
           <div className="animate-pulse space-y-4">
             <div className="h-96 rounded-lg bg-muted" />
             <div className="h-64 rounded-lg bg-muted" />
           </div>
-        </div>
       </div>
     );
   }
@@ -167,9 +163,7 @@ const VehicleDetail = () => {
   if (!vehicle) return null;
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="container py-8">
+    <div className="container py-8">
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="space-y-4">
             <div className="relative h-[400px] overflow-hidden rounded-lg bg-muted">
@@ -348,7 +342,6 @@ const VehicleDetail = () => {
             </Dialog>
           </div>
         </div>
-      </div>
     </div>
   );
 };
