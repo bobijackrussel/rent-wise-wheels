@@ -9,6 +9,9 @@ import {
   LayoutDashboard,
   MapPin,
   Percent,
+  Users,
+  MessageCircle,
+  ShieldAlert,
 } from "lucide-react";
 import {
   Sidebar,
@@ -57,6 +60,9 @@ export function AppSidebar() {
     { title: "Vehicles", url: "/admin/vehicles", icon: Car },
     { title: "Locations", url: "/admin/locations", icon: MapPin },
     { title: "Discounts", url: "/admin/discounts", icon: Percent },
+    { title: "Users", url: "/admin/users", icon: Users },
+    { title: "Feedback", url: "/admin/feedback", icon: MessageCircle },
+    { title: "Violations", url: "/admin/violations", icon: ShieldAlert },
   ];
 
   const items = isAdmin ? adminItems : userItems;

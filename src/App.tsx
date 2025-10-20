@@ -20,6 +20,9 @@ import VehicleManagement from "./pages/admin/VehicleManagement";
 import ReservationManagement from "./pages/admin/ReservationManagement";
 import LocationManagement from "./pages/admin/LocationManagement";
 import DiscountManagement from "./pages/admin/DiscountManagement";
+import UserManagement from "./pages/admin/UserManagement";
+import FeedbackManagement from "./pages/admin/FeedbackManagement";
+import ViolationManagement from "./pages/admin/ViolationManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +54,9 @@ const App = () => (
                     <Route path="/admin/reservations" element={<ReservationManagement />} />
                     <Route path="/admin/locations" element={<LocationManagement />} />
                     <Route path="/admin/discounts" element={<DiscountManagement />} />
+                    <Route path="/admin/users" element={<UserManagement />} />
+                    <Route path="/admin/feedback" element={<FeedbackManagement />} />
+                    <Route path="/admin/violations" element={<ViolationManagement />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
