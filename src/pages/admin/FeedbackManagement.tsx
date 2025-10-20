@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
@@ -8,10 +8,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { Star } from "lucide-react";
+import { Star, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function FeedbackManagement() {
+  const queryClient = useQueryClient();
+
   const { data: feedback, isLoading } = useQuery({
     queryKey: ["admin-feedback"],
     queryFn: async () => {
@@ -38,6 +42,24 @@ export default function FeedbackManagement() {
     },
   });
 
+  const deleteFeedback = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("feedback")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-feedback"] });
+      toast.success("Feedback deleted");
+    },
+    onError: () => {
+      toast.error("Failed to delete feedback");
+    },
+  });
+
   if (isLoading) {
     return <div className="p-8">Loading feedback...</div>;
   }
@@ -55,6 +77,7 @@ export default function FeedbackManagement() {
               <TableHead>Comment</TableHead>
               <TableHead>Reservation ID</TableHead>
               <TableHead>Date</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -75,6 +98,15 @@ export default function FeedbackManagement() {
                 </TableCell>
                 <TableCell>
                   {format(new Date(item.created_at), "MMM dd, yyyy")}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => deleteFeedback.mutate(item.id)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

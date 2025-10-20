@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Table,
@@ -9,9 +9,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { UserPlus, UserMinus } from "lucide-react";
+import { toast } from "sonner";
 
 export default function UserManagement() {
+  const queryClient = useQueryClient();
+
   const { data: users, isLoading } = useQuery({
     queryKey: ["admin-users"],
     queryFn: async () => {
@@ -40,6 +45,31 @@ export default function UserManagement() {
     },
   });
 
+  const toggleAdminRole = useMutation({
+    mutationFn: async ({ userId, hasAdmin }: { userId: string; hasAdmin: boolean }) => {
+      if (hasAdmin) {
+        const { error } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq("user_id", userId)
+          .eq("role", "admin");
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role: "admin" });
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      toast.success("User role updated");
+    },
+    onError: () => {
+      toast.error("Failed to update user role");
+    },
+  });
+
   if (isLoading) {
     return <div className="p-8">Loading users...</div>;
   }
@@ -56,6 +86,7 @@ export default function UserManagement() {
               <TableHead>Phone</TableHead>
               <TableHead>Roles</TableHead>
               <TableHead>Joined</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -74,6 +105,30 @@ export default function UserManagement() {
                 </TableCell>
                 <TableCell>
                   {format(new Date(user.created_at), "MMM dd, yyyy")}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    size="sm"
+                    variant={user.roles?.includes("admin") ? "destructive" : "default"}
+                    onClick={() =>
+                      toggleAdminRole.mutate({
+                        userId: user.id,
+                        hasAdmin: user.roles?.includes("admin"),
+                      })
+                    }
+                  >
+                    {user.roles?.includes("admin") ? (
+                      <>
+                        <UserMinus className="h-4 w-4 mr-1" />
+                        Remove Admin
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="h-4 w-4 mr-1" />
+                        Make Admin
+                      </>
+                    )}
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
