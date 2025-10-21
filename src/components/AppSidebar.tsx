@@ -12,6 +12,7 @@ import {
   Users,
   MessageCircle,
   ShieldAlert,
+  BarChart3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -56,6 +57,7 @@ export function AppSidebar() {
   ];
 
   const adminItems = [
+    { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
     { title: "Reservations", url: "/admin/reservations", icon: LayoutDashboard },
     { title: "Vehicles", url: "/admin/vehicles", icon: Car },
     { title: "Locations", url: "/admin/locations", icon: MapPin },

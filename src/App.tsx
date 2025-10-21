@@ -23,6 +23,7 @@ import DiscountManagement from "./pages/admin/DiscountManagement";
 import UserManagement from "./pages/admin/UserManagement";
 import FeedbackManagement from "./pages/admin/FeedbackManagement";
 import ViolationManagement from "./pages/admin/ViolationManagement";
+import Analytics from "./pages/admin/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
                     <Route path="/settings" element={<Settings />} />
                     <Route path="/violations" element={<ReportViolation />} />
                     <Route path="/feedback" element={<LeaveFeedback />} />
+                    <Route path="/admin/analytics" element={<Analytics />} />
                     <Route path="/admin/vehicles" element={<VehicleManagement />} />
                     <Route path="/admin/reservations" element={<ReservationManagement />} />
                     <Route path="/admin/locations" element={<LocationManagement />} />
