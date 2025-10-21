@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { 
   BarChart, 
   Bar, 
@@ -13,8 +15,10 @@ import {
   ResponsiveContainer 
 } from "recharts";
 import { Car, Users, Calendar, DollarSign } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Analytics() {
+  const [calendarMonth, setCalendarMonth] = useState<Date>(new Date());
   const { data: stats } = useQuery({
     queryKey: ["admin-analytics"],
     queryFn: async () => {
@@ -29,7 +33,7 @@ export default function Analytics() {
         supabase.from("vehicles").select("*", { count: "exact", head: true }),
         supabase
           .from("reservations")
-          .select("created_at, total_price")
+          .select("created_at, total_price, start_date, end_date")
           .order("created_at", { ascending: true }),
       ]);
 
@@ -53,12 +57,24 @@ export default function Analytics() {
         return acc;
       }, {});
 
+      // Extract all reservation dates
+      const reservationDates = new Set<string>();
+      reservations?.forEach((r) => {
+        const start = new Date(r.start_date);
+        const end = new Date(r.end_date);
+        
+        for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+          reservationDates.add(new Date(d).toDateString());
+        }
+      });
+
       return {
         totalReservations: totalReservations || 0,
         totalUsers: totalUsers || 0,
         totalVehicles: totalVehicles || 0,
         totalRevenue,
         monthlyData: Object.values(monthlyData || {}).slice(-6),
+        reservationDates: Array.from(reservationDates),
       };
     },
   });
@@ -111,7 +127,7 @@ export default function Analytics() {
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card>
           <CardHeader>
             <CardTitle>Monthly Reservations</CardTitle>
@@ -148,6 +164,27 @@ export default function Analytics() {
                 />
               </LineChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Reservation Calendar</CardTitle>
+          </CardHeader>
+          <CardContent className="flex justify-center">
+            <CalendarComponent
+              mode="single"
+              month={calendarMonth}
+              onMonthChange={setCalendarMonth}
+              className={cn("pointer-events-auto")}
+              modifiers={{
+                reserved: (date) =>
+                  stats?.reservationDates?.includes(date.toDateString()) || false,
+              }}
+              modifiersClassNames={{
+                reserved: "bg-primary text-primary-foreground font-bold",
+              }}
+            />
           </CardContent>
         </Card>
       </div>
