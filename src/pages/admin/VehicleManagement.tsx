@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus } from "lucide-react";
 
@@ -22,6 +22,10 @@ type Vehicle = {
   is_available: boolean;
   image_url?: string;
   location_id?: string;
+  seats?: number;
+  transmission?: string;
+  fuel_type?: string;
+  description?: string;
 };
 
 type Location = {
@@ -80,7 +84,10 @@ const VehicleManagement = () => {
   const fetchVehicles = async () => {
     const { data, error } = await supabase
       .from("vehicles")
-      .select("*")
+      .select(`
+        *,
+        locations(name, city)
+      `)
       .order("created_at", { ascending: false });
 
     if (error) {
@@ -140,11 +147,11 @@ const VehicleManagement = () => {
       model: vehicle.model,
       year: vehicle.year,
       type: vehicle.type,
-      transmission: "automatic",
-      fuel_type: "gasoline",
-      seats: 5,
+      transmission: vehicle.transmission || "automatic",
+      fuel_type: vehicle.fuel_type || "gasoline",
+      seats: vehicle.seats || 5,
       price_per_day: Number(vehicle.price_per_day),
-      description: "",
+      description: vehicle.description || "",
       image_url: vehicle.image_url || "",
       location_id: vehicle.location_id || "",
       features: [],
@@ -330,46 +337,66 @@ const VehicleManagement = () => {
         </div>
 
         {loading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-32 animate-pulse rounded-lg bg-muted" />
-            ))}
-          </div>
+          <div className="h-64 animate-pulse rounded-lg bg-muted" />
         ) : (
-          <div className="space-y-4">
-            {vehicles.map((vehicle) => (
-              <Card key={vehicle.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle>
-                        {vehicle.make} {vehicle.model} ({vehicle.year})
-                      </CardTitle>
-                      <CardDescription>Type: {vehicle.type}</CardDescription>
-                    </div>
-                    <Badge variant={vehicle.is_available ? "default" : "secondary"}>
-                      {vehicle.is_available ? "Available" : "Unavailable"}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between">
-                    <p className="text-2xl font-bold text-primary">${vehicle.price_per_day}/day</p>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => toggleAvailability(vehicle)}>
-                        {vehicle.is_available ? "Mark Unavailable" : "Mark Available"}
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(vehicle)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(vehicle.id)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Vehicle</TableHead>
+                  <TableHead>Year</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Seats</TableHead>
+                  <TableHead>Transmission</TableHead>
+                  <TableHead>Fuel</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Price/Day</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {vehicles.map((vehicle: any) => (
+                  <TableRow key={vehicle.id}>
+                    <TableCell className="font-medium">
+                      {vehicle.make} {vehicle.model}
+                    </TableCell>
+                    <TableCell>{vehicle.year}</TableCell>
+                    <TableCell className="capitalize">{vehicle.type}</TableCell>
+                    <TableCell>{vehicle.seats || "N/A"}</TableCell>
+                    <TableCell className="capitalize">{vehicle.transmission || "N/A"}</TableCell>
+                    <TableCell className="capitalize">{vehicle.fuel_type || "N/A"}</TableCell>
+                    <TableCell>
+                      {vehicle.locations ? `${vehicle.locations.name}, ${vehicle.locations.city}` : "N/A"}
+                    </TableCell>
+                    <TableCell className="font-semibold">${vehicle.price_per_day}</TableCell>
+                    <TableCell>
+                      <Badge variant={vehicle.is_available ? "default" : "secondary"}>
+                        {vehicle.is_available ? "Available" : "Unavailable"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => toggleAvailability(vehicle)}
+                          title={vehicle.is_available ? "Mark Unavailable" : "Mark Available"}
+                        >
+                          {vehicle.is_available ? "Hide" : "Show"}
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={() => handleEdit(vehicle)}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(vehicle.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         )}
     </div>
