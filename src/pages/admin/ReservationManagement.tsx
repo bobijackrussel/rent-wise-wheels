@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { format } from "date-fns";
-import { Calendar, MapPin, Car, User } from "lucide-react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -119,79 +117,65 @@ const ReservationManagement = () => {
         </div>
 
         {loading ? (
-          <div className="space-y-4">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-48 animate-pulse rounded-lg bg-muted" />
-            ))}
-          </div>
+          <div className="h-64 animate-pulse rounded-lg bg-muted" />
         ) : (
-          <div className="space-y-4">
-            {reservations.map((reservation) => (
-              <Card key={reservation.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <Car className="h-5 w-5" />
-                        {reservation.vehicles.make} {reservation.vehicles.model}
-                      </CardTitle>
-                      <CardDescription className="mt-2">
-                        Reservation #{reservation.id.slice(0, 8)}
-                      </CardDescription>
-                    </div>
-                    {getStatusBadge(reservation.status)}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid gap-4 md:grid-cols-3">
-                    <div className="flex items-center gap-2">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Rental Period</p>
-                        <p className="font-semibold">
-                          {format(new Date(reservation.start_date), "MMM dd")} -{" "}
-                          {format(new Date(reservation.end_date), "MMM dd, yyyy")}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Pickup Location</p>
-                        <p className="font-semibold">
-                          {reservation.locations.name}, {reservation.locations.city}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div>
-                      <p className="text-sm text-muted-foreground">Total Price</p>
-                      <p className="text-2xl font-bold text-primary">
-                        ${reservation.total_price}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-4">
-                    <label className="text-sm text-muted-foreground">Update Status:</label>
-                    <Select
-                      value={reservation.status}
-                      onValueChange={(value) => updateReservationStatus(reservation.id, value, reservation.vehicle_id)}
-                    >
-                      <SelectTrigger className="mt-1 w-[200px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">Active</SelectItem>
-                        <SelectItem value="completed">Completed</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Vehicle</TableHead>
+                  <TableHead>Start Date</TableHead>
+                  <TableHead>End Date</TableHead>
+                  <TableHead>Location</TableHead>
+                  <TableHead>Total Price</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {reservations.map((reservation) => (
+                  <TableRow key={reservation.id}>
+                    <TableCell className="font-mono text-sm">
+                      #{reservation.id.slice(0, 8)}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {reservation.vehicles.make} {reservation.vehicles.model}
+                    </TableCell>
+                    <TableCell>
+                      {format(new Date(reservation.start_date), "MMM dd, yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      {format(new Date(reservation.end_date), "MMM dd, yyyy")}
+                    </TableCell>
+                    <TableCell>
+                      {reservation.locations.name}, {reservation.locations.city}
+                    </TableCell>
+                    <TableCell className="font-semibold">
+                      ${reservation.total_price}
+                    </TableCell>
+                    <TableCell>
+                      {getStatusBadge(reservation.status)}
+                    </TableCell>
+                    <TableCell>
+                      <Select
+                        value={reservation.status}
+                        onValueChange={(value) => updateReservationStatus(reservation.id, value, reservation.vehicle_id)}
+                      >
+                        <SelectTrigger className="w-[130px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         )}
     </div>
